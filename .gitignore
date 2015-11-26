@@ -1,2 +1,4 @@
 *.pyc
 .DS_Store
+credentials.py
+res.xml
