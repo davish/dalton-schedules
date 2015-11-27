@@ -34,6 +34,56 @@ def build_schedule(res):
 
     return schedule
 
+def select_faculty_calendar(faculty_id, key):
+    """
+    Given a faculty ID and a valid session key, 
+    get a faculty member's schedule for the current week.
+    """
+    m = get_monday(datetime.datetime.now().date())
+    req = """
+    <request>
+    <key>%s</key>
+    <action>selectFacultyCalendar</action>
+    <ID>%s</ID>
+    <academicyear>2016</academicyear>
+    <start>%s</start>
+    <end>%s</end>
+    </request>
+    """ % (key, 
+        faculty_id, 
+        date_string(m), 
+        date_string(m + datetime.timedelta(days=4)))
+    r = requests.post(roux_url, data={'rouxRequest': req})
+    soup = BeautifulSoup(r.text, 'xml')
+    if soup.result.get('status') == '200':
+        return build_schedule(str(soup.result))
+
+def get_teacher_list(key):
+    """
+    Get a list of all teachers, given a session key.
+    """
+    req = """
+    <request>
+    <key>%s</key>
+    <action>selectFacultyProfiles</action>
+    <something>something</something>
+    </request>
+    """ % (key)
+    r = requests.post(roux_url, data={'rouxRequest': req})
+    soup = BeautifulSoup(r.text, 'xml')
+    if (soup.result.get('status') == '200'):
+        f = []
+        for faculty in soup.result.find_all('faculty'):
+            f.append({
+                'id': faculty.get('id'),
+                'fullname': faculty.find('name').text,
+                'firstname': faculty.find('firstname').text,
+                'lastname': faculty.find('lastname').text
+                })
+        return f
+    else:
+        return None
+
 
 def get_student_schedule(username, pswd):
     """
