@@ -21,8 +21,14 @@ def build_schedule(res):
             'start': str(datetime.datetime.strptime(period.start.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
             'end': str(datetime.datetime.strptime(period.end.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
             'location': period.location.text,
-            'section_id': period.section.get('id'),
-            'course_name': period.section.find('name').text
+            'course': {
+                'id': period.section.get('id'),
+                'title': period.section.find('name').text,
+                'instructor': {
+                    'id': period.instructor.get('id'),
+                    'name': period.instructor.find('name').text
+                }
+            }  
         }
         schedule.append(p)
 

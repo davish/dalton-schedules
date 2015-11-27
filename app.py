@@ -12,7 +12,8 @@ def get_schedule():
     if not request.json or \
     not 'username' in request.json or not 'password' in request.json:
         abort(400)
-    s = schedules.get_student_schedule(request.json['username'], request.json['password'])
+    s = schedules.get_student_schedule(
+        request.json['username'], request.json['password'])
     if s is None:
         abort(505)
     return jsonify({'schedule': schedules.build_schedule(s)})
