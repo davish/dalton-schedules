@@ -26,7 +26,7 @@ Currently implemented API endpoints:
     }
 }
     ```
-- '/faculty' | 'POST'
+- `/faculty` | `POST`
     - Returns an array of all faculty members. Example element:
     ```
     {
@@ -36,5 +36,5 @@ Currently implemented API endpoints:
       "lastname": "Zulakis"
     }
     ```
-- '/schedule/faculty/<_id>' | 'POST'
+- `schedule/faculty/<_id>` | `POST`
     - Retrieve the week's schedule for the faculty member whose ID is in the URL. Same format as a student's ID.
