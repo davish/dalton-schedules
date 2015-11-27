@@ -4,7 +4,6 @@ import datetime
 from bs4 import BeautifulSoup
 
 from utils import *
-import credentials
 
 roux_url = 'https://schedules.dalton.org/roux/index.php'
 
