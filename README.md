@@ -37,5 +37,5 @@ All `POST` method API endpoints require a JSON object as the request body. This 
       "lastname": "Zulakis"
     }
     ```
-- `POST` `schedule/faculty/<_id>`
+- `POST` `/schedule/faculty/<_id>`
     - Retrieve the week's schedule for the faculty member whose ID is in the URL. Same format as a student's ID.
