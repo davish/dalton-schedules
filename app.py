@@ -16,7 +16,7 @@ def get_schedule():
         request.json['username'], request.json['password'])
     if s is None:
         abort(505)
-    return jsonify({'schedule': schedules.build_schedule(s)})
+    return jsonify({'schedule': s})
 
 @app.route('/faculty', methods=['POST'])
 def get_faculty_members():
