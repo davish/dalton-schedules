@@ -95,6 +95,7 @@
             contentType: 'application/json',
             data: JSON.stringify({'username': username, 'password': password}),
             success: function(data) {
+                console.log(data['common_labs'])
                 $('pre#schedule').html('');
                 $.each(data['common_labs'], function(index, e) {
                     s = new Date(e['start']).toLocaleTimeString() + ' to ' + new Date(e['end']).toLocaleTimeString() +' on ' + new Date(e['end']).toLocaleDateString()  + '\n';
