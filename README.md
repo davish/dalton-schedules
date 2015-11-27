@@ -5,10 +5,11 @@ For many of the tests in `schedules.py`, a user and password from the Dalton sys
 
 Install dependencies with `pip install -r requirements.txt`
 
+## API
+
 All `POST` method API endpoints require a JSON object as the request body. This object should contain `username` and `password` fields. 
 
-Currently implemented API endpoints:
-- `/schedule/my`  | `POST` | 
+- `POST` `/schedule/my`
     - Get this week's schedule for the user whose credentials are passed in. Returns data in a JSON array of "event" objects of this general format:
     ```
 {
@@ -26,7 +27,7 @@ Currently implemented API endpoints:
     }
 }
     ```
-- `/faculty` | `POST`
+- `POST` `/faculty`
     - Returns an array of all faculty members. Example element:
     ```
     {
@@ -36,5 +37,5 @@ Currently implemented API endpoints:
       "lastname": "Zulakis"
     }
     ```
-- `schedule/faculty/<_id>` | `POST`
+- `POST` `schedule/faculty/<_id>`
     - Retrieve the week's schedule for the faculty member whose ID is in the URL. Same format as a student's ID.
