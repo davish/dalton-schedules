@@ -40,6 +40,6 @@ All `POST` method API endpoints require a JSON object as the request body. This 
 - `POST` `/schedule/faculty/<_id>`
     - Retrieve the week's schedule for the faculty member whose ID is in the URL. Same format as a student's ID.
 
-- `POST` `/schedule/compare/<person1>/<person2>
+- `POST` `/schedule/compare/<person1>/<person2>`
     - Returns the free times that these two people share this week.
     - The two parameters are faculty IDs. If either of the parameters is `me` instead of an ID, then the current student's ID will be used.
