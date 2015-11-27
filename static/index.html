@@ -81,7 +81,6 @@
                 $('select#faculty').html('')
                 $.each(data['faculty_members'], function(index, faculty) {
                     $('select#faculty').append('<option value="'+faculty['id']+'">'+faculty['lastname'] + ', ' + faculty['firstname']+'</option>');
-                    console.log(faculty['fullname']);
                 });
                 $('.loading').hide();
             }
@@ -95,9 +94,9 @@
             contentType: 'application/json',
             data: JSON.stringify({'username': username, 'password': password}),
             success: function(data) {
-                console.log(data['common_labs'])
                 $('pre#schedule').html('');
                 $.each(data['common_labs'], function(index, e) {
+                    console.log(e)
                     s = new Date(e['start']).toLocaleTimeString() + ' to ' + new Date(e['end']).toLocaleTimeString() +' on ' + new Date(e['end']).toLocaleDateString()  + '\n';
                     $('pre#schedule').append(s)
                 });
