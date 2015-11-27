@@ -17,9 +17,9 @@ def build_schedule(res):
     for period in soup.find_all('period'):
         d = datetime.datetime.strptime(period.date.text, '%m-%d-%Y').date()
         p = {
-            'date': d,
-            'start': datetime.datetime.strptime(period.start.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day),
-            'end': datetime.datetime.strptime(period.end.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day),
+            'date': str(d),
+            'start': str(datetime.datetime.strptime(period.start.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
+            'end': str(datetime.datetime.strptime(period.end.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
             'location': period.location.text,
             'section_id': period.section.get('id'),
             'course_name': period.section.find('name').text
@@ -38,19 +38,22 @@ def get_student_schedule(username, pswd):
     key = info[0]
     id_ = info[1]
     m = get_monday(datetime.datetime.now().date())
-    sched_req = """
-    <request>
-    <key>%s</key>
-    <action>selectStudentCalendar</action>
-    <ID>%s</ID>
-    <academicyear>%s</academicyear>
-    <start>%s</start>
-    <end>%s</end>
-    </request>
-    """ % (key, id_, '2016', date_string(m), date_string(m + datetime.timedelta(days=4)))
-    r = requests.post(roux_url, data={'rouxRequest': sched_req})
-    soup = BeautifulSoup(r.text, 'xml')
-    return str(soup.result)
+    if key is not None:
+        sched_req = """
+        <request>
+        <key>%s</key>
+        <action>selectStudentCalendar</action>
+        <ID>%s</ID>
+        <academicyear>%s</academicyear>
+        <start>%s</start>
+        <end>%s</end>
+        </request>
+        """ % (key, id_, '2016', date_string(m), date_string(m + datetime.timedelta(days=4)))
+        r = requests.post(roux_url, data={'rouxRequest': sched_req})
+        soup = BeautifulSoup(r.text, 'xml')
+        return str(soup.result)
+    else:
+        return None
 
 
 def get_key(username, pswd):
@@ -68,7 +71,10 @@ def get_key(username, pswd):
     """ % (username, pswd)
     r = requests.post(roux_url, data={'rouxRequest': token_req})
     soup = BeautifulSoup(r.text, 'xml')
-    return soup.result.key.text, soup.result.key.get('owner')
+    if soup.result.get('status') == '200':
+        return soup.result.key.text, soup.result.key.get('owner')
+    else:
+        return None, None
 
 def spoof_schedule():
     """
@@ -83,6 +89,7 @@ def build_spoof():
         f.write(get_student_schedule(credentials.username, credentials.password))
 
 if __name__ == '__main__':
-    sched = build_schedule(spoof_schedule())
-    print sched[0]
+    print get_key('c17dh', 'hello')
+    # sched = build_schedule(spoof_schedule())
+    # print sched
     
