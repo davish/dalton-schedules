@@ -18,8 +18,12 @@ def build_schedule(res):
         d = datetime.datetime.strptime(period.date.text, '%m-%d-%Y').date()
         p = {
             'date': str(d),
-            'start': str(datetime.datetime.strptime(period.start.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
-            'end': str(datetime.datetime.strptime(period.end.text, '%Y-%m-%d %H:%M:%S').replace(year=d.year,month=d.month,day=d.day)),
+            'start': str(
+                datetime.datetime.strptime(period.start.text, '%Y-%m-%d %H:%M:%S'
+                    ).replace(year=d.year,month=d.month,day=d.day)),
+            'end': str(
+                datetime.datetime.strptime(period.end.text, '%Y-%m-%d %H:%M:%S'
+                    ).replace(year=d.year,month=d.month,day=d.day)),
             'location': period.location.text,
             'course': {
                 'id': period.section.get('id'),
@@ -85,14 +89,11 @@ def get_teacher_list(key):
         return None
 
 
-def get_student_schedule(username, pswd, m=None):
+def get_student_schedule(key, id_, m=None):
     """
     Given a username and password, get a student's schedule and return
     the relevant XML in string form.
     """
-    info = get_key(username, pswd)
-    key = info[0]
-    id_ = info[1]
     if m is None:
         m = get_monday(datetime.datetime.now().date())
     if key is not None:
@@ -105,7 +106,8 @@ def get_student_schedule(username, pswd, m=None):
         <start>%s</start>
         <end>%s</end>
         </request>
-        """ % (key, id_, '2016', date_string(m), date_string(m + datetime.timedelta(days=4)))
+        """ % (key, id_, 
+            '2016', date_string(m), date_string(m + datetime.timedelta(days=4)))
         r = requests.post(roux_url, data={'rouxRequest': sched_req})
         soup = BeautifulSoup(r.text, 'xml')
         return build_schedule(soup.result)
