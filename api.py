@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request, abort
 import schedules
-import credentials
 import labs
 app = Flask(__name__)
 
