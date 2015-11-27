@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+<title>Schedules!</title>
+</head>
+<body>
+
+    <div class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">Labbr</a>
+        </div>
+        <div class="navbar-collapse collapse" id="nav">
+          <ul class="nav navbar-nav">
+            
+          </ul>
+          <form id="login" class="navbar-form navbar-right">
+            <div class="form-group">
+              <input name="username" type="text" placeholder="Username" class="form-control">
+            </div>
+            <div class="form-group">
+              <input name="password" type="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <h1 class="loading" style="font-color: red; display: none;">Loading</h1>
+
+      <select id="faculty">
+          <option>Log in to see faculty...</option>
+      </select>
+
+      <button id="go">Find free time!</button>
+
+      <pre id="schedule">
+          
+      </pre>
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2015 Company, Inc.</p>
+      </footer>
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script>
+    var username = "";
+    var password = "";
+    $('#login').submit(function(e) {
+        e.preventDefault()
+        username = e.target.username.value;
+        password = e.target.password.value;
+        $('.loading').show();
+        $.ajax({
+            url: '/faculty',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({'username': username, 'password': password}),
+            success: function(data) {
+                $('select#faculty').html('')
+                $.each(data['faculty_members'], function(index, faculty) {
+                    $('select#faculty').append('<option value="'+faculty['id']+'">'+faculty['lastname'] + ', ' + faculty['firstname']+'</option>');
+                    console.log(faculty['fullname']);
+                });
+                $('.loading').hide();
+            }
+        });
+    });
+    $('#go').click(function(e) {
+        $('.loading').show();
+        $.ajax({
+            url: '/schedule/compare/me/' + $('#faculty').val(),
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({'username': username, 'password': password}),
+            success: function(data) {
+                $('pre#schedule').html('');
+                $.each(data['common_labs'], function(index, e) {
+                    s = new Date(e['start']).toLocaleTimeString() + ' to ' + new Date(e['end']).toLocaleTimeString() +' on ' + new Date(e['end']).toLocaleDateString()  + '\n';
+                    $('pre#schedule').append(s)
+                });
+                $('.loading').hide();
+            }
+        })
+    })
+    </script>
+  </body>
+
+
+</html>

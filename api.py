@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 import schedules
 import credentials
 import labs
@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def get_home():
-    return jsonify({'message': 'Hello, World!'})
+    return app.send_static_file('index.html')
 
 @app.route('/schedule/my', methods=['POST'])
 def get_schedule():
@@ -17,7 +17,7 @@ def get_schedule():
     key = info[0]
     _id = info[1]
     if key is None:
-        abort(505)
+        abort(401)
 
     s = schedules.get_student_schedule(key, _id)
     return jsonify({'user_id': _id, 'schedule': s})
@@ -29,7 +29,7 @@ def get_faculty_members():
         abort(400)
     key = schedules.get_key(request.json['username'], request.json['password'])[0]
     if key is None:
-        abort(505)
+        abort(401)
 
     return jsonify({'faculty_members': schedules.get_teacher_list(key)})
 
@@ -40,7 +40,7 @@ def get_faculty_schedule(_id):
         abort(400)
     key = schedules.get_key(request.json['username'], request.json['password'])[0]
     if key is None:
-        abort(505)
+        abort(401)
 
     return jsonify({'faculty_id': _id, 
         'schedule': schedules.select_faculty_calendar(_id, key)})
@@ -50,9 +50,9 @@ def compare_schedules(op1, op2):
     if not request.json or \
     not 'username' in request.json or not 'password' in request.json:
         abort(400)
-    key, _id = get_key(request.json['username'], request.json['password'])
+    key, _id = schedules.get_key(request.json['username'], request.json['password'])
     if key is None:
-        abort(505)
+        abort(401)
 
     if op1 == 'me':
         s1 = schedules.get_student_schedule(key, _id)
