@@ -7,14 +7,23 @@ app = Flask(__name__)
 def get_home():
     return app.send_static_file('index.html')
 
+@app.route('/verify', methods=['POST'])
+def verify_credentials():
+    if not request.json or \
+    not ('username': in request.form and 'password' in request.form):
+        abort(400)  
+    key, _id = get_key(request.json['username'], request.json['password'])
+    if key is None:
+        abort(401)
+    return 200
+
+
 @app.route('/schedule/my', methods=['POST'])
 def get_schedule():
     if not request.json or \
     not 'username' in request.json or not 'password' in request.json:
         abort(400)
-    info = get_key(request.json['username'], request.json['password'])
-    key = info[0]
-    _id = info[1]
+    key, _id = get_key(request.json['username'], request.json['password'])
     if key is None:
         abort(401)
 

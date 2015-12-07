@@ -7,7 +7,9 @@ Install dependencies with `pip install -r requirements.txt`
 
 ## API
 
-All `POST` method API endpoints require a JSON object as the request body. This object should contain `username` and `password` fields. 
+All `POST` method API endpoints require a JSON object as the request body. This object should contain `username` and `password` fields, unless otherwise specified. Malformed requests respond with a 400.
+
+
 
 - `POST` `/info/<id>`
   - Get information about a user. Returns their grade, full name, and whether they're a student or a teacher.
@@ -46,3 +48,6 @@ All `POST` method API endpoints require a JSON object as the request body. This 
 - `POST` `/schedule/compare/<person1>/<person2>`
     - Returns the free times that these two people share this week.
     - The two parameters are faculty IDs. If either of the parameters is `me` instead of an ID, then the current student's ID will be used.
+
+- `POST` `/verify`
+  - Takes `username` and `password` as *FORM-ENCODED PARAMETERS*. Returns 401 for bad credentials, and 200 for good ones.
