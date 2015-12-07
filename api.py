@@ -12,7 +12,7 @@ def verify_credentials():
     if not request.json or \
     not ('username': in request.form and 'password' in request.form):
         abort(400)  
-    key, _id = get_key(request.json['username'], request.json['password'])
+    key, _id = get_key(request.form['username'], request.form['password'])
     if key is None:
         abort(401)
     return 200
