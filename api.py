@@ -44,6 +44,19 @@ def get_faculty_schedule(_id):
     return jsonify({'faculty_id': _id, 
         'schedule': schedules.select_faculty_calendar(_id, key)})
 
+@app.route('/info/<_id>', methods=['POST'])
+def get_user_info(_id):
+    if not request.json or \
+    not 'username' in request.json or not 'password' in request.json:
+        abort(400)
+
+    key, id_ = schedules.get_key(request.json['username'], request.json['password'])
+    if _id == 'me':
+        _id = id_
+
+    return jsonify(schedules.select_user(key, _id))
+
+
 @app.route('/schedule/compare/<op1>/<op2>', methods=['POST'])
 def compare_schedules(op1, op2):
     if not request.json or \

@@ -9,6 +9,9 @@ Install dependencies with `pip install -r requirements.txt`
 
 All `POST` method API endpoints require a JSON object as the request body. This object should contain `username` and `password` fields. 
 
+- `POST` `/info/<id>`
+  - Get information about a user. Returns their grade, full name, and whether they're a student or a teacher.
+
 - `POST` `/schedule/my`
     - Get this week's schedule for the user whose credentials are passed in. Returns data in a JSON array of "event" objects of this general format:
     ```

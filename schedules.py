@@ -7,6 +7,13 @@ from utils import *
 
 roux_url = 'https://schedules.dalton.org/roux/index.php'
 
+SCHOOL_YEAR = '2016'
+
+def send_request(req):
+    r = requests.post(roux_url, data={'rouxRequest': req})
+    soup = BeautifulSoup(r.text, 'xml')
+    return soup, int(soup.result.get('status'))
+
 def build_schedule(res):
     """
     Take in a schedule in XML and spit it out as a Python object.
@@ -49,17 +56,17 @@ def select_faculty_calendar(faculty_id, key, m=None):
     <key>%s</key>
     <action>selectFacultyCalendar</action>
     <ID>%s</ID>
-    <academicyear>2016</academicyear>
+    <academicyear>%s</academicyear>
     <start>%s</start>
     <end>%s</end>
     </request>
     """ % (key, 
         faculty_id, 
+        SCHOOL_YEAR,
         date_string(m), 
         date_string(m + datetime.timedelta(days=4)))
-    r = requests.post(roux_url, data={'rouxRequest': req})
-    soup = BeautifulSoup(r.text, 'xml')
-    if soup.result.get('status') == '200':
+    soup, status = send_request(req)
+    if status == '200':
         return build_schedule(soup.result)
 
 def get_teacher_list(key):
@@ -72,9 +79,10 @@ def get_teacher_list(key):
     <action>selectFacultyProfiles</action>
     </request>
     """ % (key)
-    r = requests.post(roux_url, data={'rouxRequest': req})
-    soup = BeautifulSoup(r.text, 'xml')
-    if (soup.result.get('status') == '200'):
+
+    soup, status = send_request(req)
+    
+    if status == '200':
         f = []
         for faculty in soup.result.find_all('faculty'):
             f.append({
@@ -88,15 +96,14 @@ def get_teacher_list(key):
         return None
 
 
-def get_student_schedule(key, id_, m=None):
+def get_student_schedule(key, _id, m=None):
     """
     Given a username and password, get a student's schedule and return
     the relevant XML in string form.
     """
     if m is None:
         m = get_monday(datetime.datetime.now().date())
-    if key is not None:
-        sched_req = """
+    sched_req = """
         <request>
         <key>%s</key>
         <action>selectStudentCalendar</action>
@@ -105,31 +112,46 @@ def get_student_schedule(key, id_, m=None):
         <start>%s</start>
         <end>%s</end>
         </request>
-        """ % (key, id_, 
-            '2016', date_string(m), date_string(m + datetime.timedelta(days=4)))
-        r = requests.post(roux_url, data={'rouxRequest': sched_req})
-        soup = BeautifulSoup(r.text, 'xml')
+        """ % (key, 
+               _id, 
+               SCHOOL_YEAR, 
+               date_string(m), 
+               date_string(m + datetime.timedelta(days=4)))
+    soup, status = send_request(sched_req)
+    if status == 200:
         return build_schedule(soup.result)
-    else:
-        return None
+
+def select_user(key, _id):
+    soup, status = send_request(
+        """
+        <request>
+        <key>%s</key>
+        <action>selectUser</action>
+        <ID>%s</ID>
+        </request>
+        """ % (key, _id))
+    if status == 200:
+        u = soup.result.user
+        return {'fullname': u.find('name').text,
+                'grade': u.grade.text,
+                'type': u.get('type'),
+                }
 
 
 def get_key(username, pswd):
     """
     Get a schedules access key given a username and password.
     """
-    token_req = """
-    <request>
-    <key></key>
-    <action>authenticate</action>
-    <credentials>
-    <username>%s</username><password type="plaintext">%s</password>
-    </credentials>
-    </request>
-    """ % (username, pswd)
-    r = requests.post(roux_url, data={'rouxRequest': token_req})
-    soup = BeautifulSoup(r.text, 'xml')
-    if soup.result.get('status') == '200':
+    soup, status = send_request(
+        """
+        <request>
+        <key></key>
+        <action>authenticate</action>
+        <credentials>
+        <username>%s</username><password type="plaintext">%s</password>
+        </credentials>
+        </request>""" % (username, pswd))
+    if status == 200:
         return soup.result.key.text, soup.result.key.get('owner')
     else:
         return None, None
@@ -147,5 +169,7 @@ def build_spoof():
         f.write(get_student_schedule(credentials.username, credentials.password))
 
 if __name__ == '__main__':
-    print get_key('c17dh', 'hello')
+    import credentials
+    key, _id = get_key(credentials.username, credentials.password)
+    print select_user(key, _id)
     
