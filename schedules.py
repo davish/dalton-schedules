@@ -66,23 +66,22 @@ def select_faculty_calendar(faculty_id, key, m=None):
         date_string(m), 
         date_string(m + datetime.timedelta(days=4)))
     soup, status = send_request(req)
-    if status == '200':
+    if status == 200:
         return build_schedule(soup.result)
 
 def get_teacher_list(key):
     """
     Get a list of all teachers, given a session key.
     """
-    req = """
-    <request>
-    <key>%s</key>
-    <action>selectFacultyProfiles</action>
-    </request>
-    """ % (key)
-
-    soup, status = send_request(req)
+    soup, status = send_request(
+        """
+        <request>
+        <key>%s</key>
+        <action>selectFacultyProfiles</action>
+        </request>
+        """ % (key))
     
-    if status == '200':
+    if status == 200:
         f = []
         for faculty in soup.result.find_all('faculty'):
             f.append({
@@ -96,9 +95,9 @@ def get_teacher_list(key):
         return None
 
 
-def get_student_schedule(key, _id, m=None):
+def select_student_calendar(key, _id, m=None):
     """
-    Given a username and password, get a student's schedule and return
+    Given a session key and a student ID, get a student's schedule and return
     the relevant XML in string form.
     """
     if m is None:
@@ -120,6 +119,19 @@ def get_student_schedule(key, _id, m=None):
     soup, status = send_request(sched_req)
     if status == 200:
         return build_schedule(soup.result)
+
+def select_student_schedule(key, _id):
+    soup, status = send_request(
+        """
+        <request>
+        <key>%s</key>
+        <action>selectStudentSchedule</action>
+        <ID>%s</ID>
+        <academicyear>%s</academicyear>
+        </request>
+        """ % (key, _id, SCHOOL_YEAR))
+    if status == 200:
+        return soup
 
 def select_user(key, _id):
     soup, status = send_request(
@@ -156,20 +168,8 @@ def get_key(username, pswd):
     else:
         return None, None
 
-def spoof_schedule():
-    """
-    Return string in the same format as get_student_schedule, 
-    but from a file instead of from the schedules API.
-    """
-    with open('res.xml', 'r') as f:
-        return str(BeautifulSoup(f.read(), 'xml').result)
-
-def build_spoof():
-    with open('res.xml', 'w') as f:
-        f.write(get_student_schedule(credentials.username, credentials.password))
-
 if __name__ == '__main__':
     import credentials
     key, _id = get_key(credentials.username, credentials.password)
-    print select_user(key, _id)
+    print select_student_calendar(key, _id)[0]
     

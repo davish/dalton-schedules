@@ -27,7 +27,7 @@ def get_schedule():
     if key is None:
         abort(401)
 
-    s = schedules.get_student_schedule(key, _id)
+    s = schedules.select_student_calendar(key, _id)
     return jsonify({'user_id': _id, 'schedule': s})
 
 @app.route('/faculty', methods=['POST'])
@@ -76,12 +76,12 @@ def compare_schedules(op1, op2):
         abort(401)
 
     if op1 == 'me':
-        s1 = schedules.get_student_schedule(key, _id)
+        s1 = schedules.select_student_calendar(key, _id)
     else:
         s1 = schedules.select_faculty_calendar(op1, key)
 
     if op2 == 'me':
-        s2 = schedules.get_student_schedule(key, _id)
+        s2 = schedules.select_student_calendar(key, _id)
     else:
         s2 = schedules.select_faculty_calendar(op2, key)
 
