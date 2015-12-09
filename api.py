@@ -10,7 +10,7 @@ def get_home():
 @app.route('/verify', methods=['POST'])
 def verify_credentials():
     if not request.json or \
-    not ('username': in request.form and 'password' in request.form):
+    not ('username' in request.form and 'password' in request.form):
         abort(400)  
     key, _id = get_key(request.form['username'], request.form['password'])
     if key is None:
